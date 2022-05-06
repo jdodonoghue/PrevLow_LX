@@ -1,0 +1,80 @@
+//jo_PrevLow_LX
+// Created by: John O'Donoghue
+// Github: https://github.com/jdodonoghue/PrevLow_LX.git
+
+input: Offset(0.25), instance(1);
+
+Vars: oPivotPrice(0), oPivotBar(0);
+Vars: highestHigh(0);
+var: pivotHigh(0), pivotLow(0);
+var: pivotReturnValue(0);
+vars: string outputFilePath("");
+
+method void AnalysisTechnique_Initialized( elsystem.Object sender, elsystem.InitializedEventArgs args ) 
+begin
+//If BarNumber = 1 then  
+//	CLEARPRINTLOG;
+	//outputFilePath = "C:\_code\tradestation\SimulatedTeting\output.txt";
+	//DeleteFile(outputFilePath);
+end;
+
+method void DeleteFile(string filepath)
+begin
+	FileDelete(filepath);
+end;
+
+If marketposition = 1 then
+Begin
+	//print(instance);
+	Value1 = BarsSinceEntry(0);
+	Value2 = Value1 + 10;
+	 
+	if Value1 = 0 then
+	Begin
+		highestHigh = 0;
+		oPivotPrice = 0;
+		oPivotBar = 0;
+	end;
+	
+	if highestHigh = 0 then 
+	Begin
+		highestHigh = high;	
+	end;
+	if Value1 > 0 then
+	Begin
+		If High > highestHigh then
+		begin
+			highestHigh = high;	
+			pivotReturnValue = Pivot(low, Value2, 1, 1, instance, -1, oPivotPrice, oPivotBar); 
+		end;
+	end;
+	
+	//Print(File("C:\_code\tradestation\SimulatedTeting\output.txt"), " Time: ", Time, " Value1: ", Value1, " highestHigh: ", highestHigh, " oPivotPrice: ", oPivotPrice, " oPivotBar: ", oPivotBar);
+	
+	if oPivotPrice = 0 Then	
+	Begin 
+		Sell Next Bar at lowest(low, 3) - Offset Stop;
+	End;
+		
+	if Value1 > 0 and oPivotPrice > 0 Then	
+	Begin 
+		Sell Next Bar at oPivotPrice - Offset Stop;
+	End;
+	
+end;	
+
+
+
+
+
+{
+Value2 = Pivot(Price, Length, LeftStrength, RightStrength, Instance, HiLo, oPivotPrice, oPivotBar);
+Price	 		Numeric	 Specifies which bar value (price, function, or formula) to be considered.
+Length	 		Numeric	 Sets the number of bars to consider for the pivot.
+LeftStrength	Numeric	 Sets the required number of bars on the left side of the pivot bar.
+RightStrength	Numeric	 Sets the required number of bars on the right side of the pivot bar.
+Instance	 	Numeric	 Sets which occurrence (that is, 1 = most recent, 2 = 2nd most recent, and so on) to return.
+HiLo			Numeric	 Sets which pivot values to return, 1 = High, -1 = Low.
+oPivotPrice	 	Numeric	 Outputs the specified bar value at the pivot point.
+oPivotBar	 	Numeric	 Outputs the number of bars ago the pivot point occurred.
+}
